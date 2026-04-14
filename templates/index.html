@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mental Health Detector</title>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg: #0c0f14;
+            --surface: #13171f;
+            --surface2: #1a1f2a;
+            --border: rgba(255,255,255,0.07);
+            --accent: #7eb8a4;
+            --accent2: #a78bfa;
+            --text: #e8e6e1;
+            --muted: #6b7280;
+            --low: #6ee7b7;
+            --moderate: #fbbf24;
+            --high: #f87171;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* Ambient background blobs */
+        .bg-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.12;
+            pointer-events: none;
+            animation: drift 12s ease-in-out infinite alternate;
+        }
+        .bg-orb-1 { width: 500px; height: 500px; background: #7eb8a4; top: -100px; left: -100px; animation-delay: 0s; }
+        .bg-orb-2 { width: 400px; height: 400px; background: #a78bfa; bottom: -80px; right: -80px; animation-delay: -5s; }
+        .bg-orb-3 { width: 300px; height: 300px; background: #60a5fa; top: 40%; left: 60%; animation-delay: -3s; }
+
+        @keyframes drift {
+            from { transform: translate(0, 0) scale(1); }
+            to { transform: translate(30px, 20px) scale(1.05); }
+        }
+
+        /* Noise texture overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+            opacity: 0.025;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 560px;
+            padding: 24px;
+            animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(28px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 48px 44px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 32px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.03) inset;
+        }
+
+        .eyebrow {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .dot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--accent);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+        }
+
+        .eyebrow-text {
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--accent);
+        }
+
+        h1 {
+            font-family: 'Instrument Serif', serif;
+            font-size: 2.6rem;
+            line-height: 1.1;
+            color: var(--text);
+            margin-bottom: 10px;
+            font-weight: 400;
+        }
+
+        h1 em {
+            font-style: italic;
+            color: var(--accent);
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: var(--muted);
+            line-height: 1.6;
+            margin-bottom: 36px;
+            font-weight: 300;
+        }
+
+        .input-wrap {
+            position: relative;
+            margin-bottom: 16px;
+        }
+
+        textarea {
+            width: 100%;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 15px;
+            font-weight: 300;
+            line-height: 1.6;
+            padding: 18px 20px;
+            resize: none;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            min-height: 110px;
+        }
+
+        textarea::placeholder { color: var(--muted); }
+
+        textarea:focus {
+            border-color: rgba(126, 184, 164, 0.4);
+            box-shadow: 0 0 0 3px rgba(126, 184, 164, 0.08);
+        }
+
+        .char-count {
+            position: absolute;
+            bottom: 12px;
+            right: 16px;
+            font-size: 11px;
+            color: var(--muted);
+            pointer-events: none;
+        }
+
+        button[type="submit"] {
+            width: 100%;
+            padding: 16px;
+            background: var(--accent);
+            color: #0c0f14;
+            border: none;
+            border-radius: 12px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
+            letter-spacing: 0.01em;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button[type="submit"]::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(255,255,255,0.12) 0%, transparent 100%);
+            pointer-events: none;
+        }
+
+        button[type="submit"]:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 24px rgba(126, 184, 164, 0.3);
+            background: #8fc9b5;
+        }
+
+        button[type="submit"]:active { transform: translateY(0); }
+
+        /* Result card */
+        .result-section {
+            margin-top: 20px;
+            animation: fadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        .result-card {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 20px 22px;
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+        }
+
+        .result-icon {
+            width: 38px; height: 38px;
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .result-label {
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 4px;
+        }
+
+        .result-value {
+            font-family: 'Instrument Serif', serif;
+            font-size: 1.35rem;
+            line-height: 1.2;
+        }
+
+        /* risk colours */
+        .risk-low .result-icon { background: rgba(110, 231, 183, 0.12); }
+        .risk-low .result-value { color: var(--low); }
+        .risk-moderate .result-icon { background: rgba(251, 191, 36, 0.12); }
+        .risk-moderate .result-value { color: var(--moderate); }
+        .risk-high .result-icon { background: rgba(248, 113, 113, 0.12); }
+        .risk-high .result-value { color: var(--high); }
+
+        .disclaimer {
+            margin-top: 28px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+            font-size: 11.5px;
+            color: var(--muted);
+            line-height: 1.7;
+            text-align: center;
+        }
+
+        /* Loading state */
+        .btn-loading { pointer-events: none; opacity: 0.7; }
+        .spinner {
+            display: inline-block;
+            width: 14px; height: 14px;
+            border: 2px solid rgba(0,0,0,0.3);
+            border-top-color: #0c0f14;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+<div class="bg-orb bg-orb-1"></div>
+<div class="bg-orb bg-orb-2"></div>
+<div class="bg-orb bg-orb-3"></div>
+
+<div class="container">
+    <div class="card">
+
+        <div class="eyebrow">
+            <div class="dot"></div>
+            <span class="eyebrow-text">AI-Powered Analysis</span>
+        </div>
+
+        <h1>Mental Health<br><em>Risk Detector</em></h1>
+        <p class="subtitle">Share what's on your mind. Our model will assess emotional risk signals in your text.</p>
+
+        <form method="POST" id="analysisForm">
+            <div class="input-wrap">
+                <textarea
+                    name="text"
+                    id="textInput"
+                    placeholder="Type your thoughts here…"
+                    required
+                    maxlength="500"
+                ></textarea>
+                <span class="char-count" id="charCount">0 / 500</span>
+            </div>
+            <button type="submit" id="submitBtn">Analyze Text</button>
+        </form>
+
+        <!-- Result injected by Flask: replace the block below -->
+        {% if result %}
+        <div class="result-section">
+            <div class="result-card {% if 'High' in result %}risk-high{% elif 'Moderate' in result %}risk-moderate{% else %}risk-low{% endif %}">
+                <div class="result-icon">
+                    {% if 'High' in result %}⚠️{% elif 'Moderate' in result %}🔶{% else %}✅{% endif %}
+                </div>
+                <div>
+                    <div class="result-label">Assessment Result</div>
+                    <div class="result-value">{{ result }}</div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <p class="disclaimer">
+            This tool is for educational purposes only and is not a substitute<br>
+            for professional mental health advice or diagnosis.
+        </p>
+
+    </div>
+</div>
+
+<script>
+    const textarea = document.getElementById('textInput');
+    const charCount = document.getElementById('charCount');
+    const form = document.getElementById('analysisForm');
+    const btn = document.getElementById('submitBtn');
+
+    textarea.addEventListener('input', () => {
+        const len = textarea.value.length;
+        charCount.textContent = `${len} / 500`;
+    });
+
+    form.addEventListener('submit', () => {
+        btn.classList.add('btn-loading');
+        btn.innerHTML = '<span class="spinner"></span>Analyzing…';
+    });
+</script>
+
+</body>
+</html>
