@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Analysis</title>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --bg: #0c0f14; --surface: #13171f; --surface2: #1a1f2a;
+            --border: rgba(255,255,255,0.07); --accent: #7eb8a4;
+            --text: #e8e6e1; --muted: #6b7280;
+        }
+        body {
+            background: var(--bg); color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            min-height: 100vh; display: flex;
+            align-items: center; justify-content: center; padding: 40px 24px;
+        }
+        .bg-orb { position: fixed; border-radius: 50%; filter: blur(80px); opacity: 0.10; pointer-events: none; }
+        .bg-orb-1 { width: 500px; height: 500px; background: #7eb8a4; top: -100px; left: -100px; }
+        .bg-orb-2 { width: 400px; height: 400px; background: #a78bfa; bottom: -80px; right: -80px; }
+        .container { position: relative; z-index: 1; width: 100%; max-width: 560px; }
+        .card {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 24px; padding: 48px 44px;
+            box-shadow: 0 32px 80px rgba(0,0,0,0.5);
+        }
+        .nav { display: flex; gap: 12px; margin-bottom: 32px; }
+        .nav a {
+            font-size: 13px; color: var(--muted); text-decoration: none;
+            padding: 6px 14px; border: 1px solid var(--border); border-radius: 8px;
+            transition: all 0.15s;
+        }
+        .nav a:hover, .nav a.active { color: var(--accent); border-color: var(--accent); }
+        .eyebrow { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; }
+        .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+        .eyebrow-text { font-size: 11px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); }
+        h1 { font-family: 'Instrument Serif', serif; font-size: 2.2rem; line-height: 1.1; margin-bottom: 10px; font-weight: 400; }
+        h1 em { font-style: italic; color: var(--accent); }
+        .subtitle { font-size: 14px; color: var(--muted); line-height: 1.6; margin-bottom: 36px; font-weight: 300; }
+        .upload-area {
+            border: 2px dashed rgba(126,184,164,0.3); border-radius: 16px;
+            padding: 40px; text-align: center; cursor: pointer;
+            transition: all 0.2s; margin-bottom: 24px; position: relative;
+        }
+        .upload-area:hover { border-color: var(--accent); background: rgba(126,184,164,0.05); }
+        .upload-area.dragover { border-color: var(--accent); background: rgba(126,184,164,0.08); }
+        .upload-icon { font-size: 2.5rem; margin-bottom: 12px; }
+        .upload-text { font-size: 14px; color: var(--muted); }
+        .upload-text span { color: var(--accent); }
+        .file-input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+        .file-name { font-size: 13px; color: var(--accent); margin-top: 10px; min-height: 20px; }
+        .submit-btn {
+            width: 100%; padding: 16px; background: var(--accent); color: #0c0f14;
+            border: none; border-radius: 12px; font-family: 'DM Sans', sans-serif;
+            font-size: 15px; font-weight: 500; cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+        .submit-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(126,184,164,0.3); }
+        .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .result-box {
+            margin-top: 28px; padding: 24px; border-radius: 16px;
+            background: var(--surface2); border: 1px solid var(--border);
+            text-align: center; animation: fadeUp 0.4s ease both;
+        }
+        @keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+        .result-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 8px; }
+        .result-value { font-family: 'Instrument Serif', serif; font-size: 1.8rem; }
+        .minimal { color: #6ee7b7; } .mild { color: #86efac; }
+        .moderate { color: #fbbf24; } .severe { color: #f87171; }
+        .error-box {
+            margin-top: 20px; padding: 16px; border-radius: 12px;
+            background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.3);
+            color: #f87171; font-size: 13px; text-align: center;
+        }
+        .disclaimer { margin-top: 24px; font-size: 11.5px; color: var(--muted); line-height: 1.7; text-align: center; }
+        .loading { display: none; text-align: center; margin-top: 16px; color: var(--muted); font-size: 13px; }
+    </style>
+</head>
+<body>
+<div class="bg-orb bg-orb-1"></div>
+<div class="bg-orb bg-orb-2"></div>
+<div class="container">
+    <div class="card">
+        <div class="nav">
+            <a href="/">Text Analysis</a>
+            <a href="/audio" class="active">Audio Analysis</a>
+            <a href="/questionnaire">Questionnaire</a>
+        </div>
+        <div class="eyebrow"><div class="dot"></div><span class="eyebrow-text">Module 3 · Audio Analysis</span></div>
+        <h1>Voice <em>Risk</em><br>Detection</h1>
+        <p class="subtitle">Upload a <strong>.wav audio file</strong> of speech. The model analyzes vocal patterns using MFCC features to detect mental health risk levels.</p>
+
+        <form method="POST" enctype="multipart/form-data" id="audioForm">
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-icon">🎙️</div>
+                <div class="upload-text">Drop your <span>.wav file</span> here or click to browse</div>
+                <input type="file" name="audio" class="file-input" accept=".wav" id="fileInput">
+                <div class="file-name" id="fileName"></div>
+            </div>
+            <button type="submit" class="submit-btn" id="submitBtn" disabled>Analyse Audio</button>
+            <div class="loading" id="loading">⏳ Analysing audio, please wait...</div>
+        </form>
+
+        {% if result %}
+        <div class="result-box">
+            <div class="result-label">Detection Result</div>
+            <div class="result-value
+                {% if 'Minimal' in result %}minimal
+                {% elif 'Mild' in result %}mild
+                {% elif 'Moderate' in result %}moderate
+                {% else %}severe{% endif %}">
+                {{ result }}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if error %}
+        <div class="error-box">{{ error }}</div>
+        {% endif %}
+
+        <p class="disclaimer">Audio is processed locally and not stored. This tool is for educational purposes only.</p>
+    </div>
+</div>
+
+<script>
+    const fileInput = document.getElementById('fileInput');
+    const fileName = document.getElementById('fileName');
+    const submitBtn = document.getElementById('submitBtn');
+    const uploadArea = document.getElementById('uploadArea');
+    const form = document.getElementById('audioForm');
+    const loading = document.getElementById('loading');
+
+    fileInput.addEventListener('change', () => {
+        if (fileInput.files.length > 0) {
+            fileName.textContent = '✅ ' + fileInput.files[0].name;
+            submitBtn.disabled = false;
+        }
+    });
+
+    uploadArea.addEventListener('dragover', (e) => { e.preventDefault(); uploadArea.classList.add('dragover'); });
+    uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('dragover'));
+    uploadArea.addEventListener('drop', (e) => {
+        e.preventDefault(); uploadArea.classList.remove('dragover');
+        fileInput.files = e.dataTransfer.files;
+        if (fileInput.files.length > 0) {
+            fileName.textContent = '✅ ' + fileInput.files[0].name;
+            submitBtn.disabled = false;
+        }
+    });
+
+    form.addEventListener('submit', () => {
+        submitBtn.disabled = true;
+        loading.style.display = 'block';
+    });
+</script>
+</body>
+</html>
