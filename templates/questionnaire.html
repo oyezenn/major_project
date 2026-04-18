@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mental Health Questionnaire</title>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg: #0c0f14;
+            --surface: #13171f;
+            --surface2: #1a1f2a;
+            --border: rgba(255,255,255,0.07);
+            --accent: #7eb8a4;
+            --accent2: #a78bfa;
+            --text: #e8e6e1;
+            --muted: #6b7280;
+            --low: #6ee7b7;
+            --moderate: #fbbf24;
+            --high: #f87171;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 40px 24px;
+        }
+
+        .bg-orb { position: fixed; border-radius: 50%; filter: blur(80px); opacity: 0.10; pointer-events: none; }
+        .bg-orb-1 { width: 500px; height: 500px; background: #7eb8a4; top: -100px; left: -100px; }
+        .bg-orb-2 { width: 400px; height: 400px; background: #a78bfa; bottom: -80px; right: -80px; }
+
+        .container { position: relative; z-index: 1; width: 100%; max-width: 680px; }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 48px 44px;
+            box-shadow: 0 32px 80px rgba(0,0,0,0.5);
+            margin-bottom: 24px;
+        }
+
+        .eyebrow {
+            display: flex; align-items: center; gap: 8px; margin-bottom: 20px;
+        }
+        .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+        .eyebrow-text { font-size: 11px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); }
+
+        h1 { font-family: 'Instrument Serif', serif; font-size: 2.2rem; line-height: 1.1; margin-bottom: 10px; font-weight: 400; }
+        h1 em { font-style: italic; color: var(--accent); }
+
+        .subtitle { font-size: 14px; color: var(--muted); line-height: 1.6; margin-bottom: 36px; font-weight: 300; }
+
+        .section-title {
+            font-family: 'Instrument Serif', serif;
+            font-size: 1.3rem;
+            color: var(--accent);
+            margin-bottom: 6px;
+            margin-top: 32px;
+        }
+        .section-desc { font-size: 13px; color: var(--muted); margin-bottom: 20px; }
+
+        .question-block { margin-bottom: 20px; }
+        .question-text { font-size: 14px; font-weight: 400; margin-bottom: 10px; line-height: 1.5; }
+        .options { display: flex; gap: 8px; flex-wrap: wrap; }
+
+        .option input[type="radio"] { display: none; }
+        .option label {
+            display: block;
+            padding: 8px 16px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.15s;
+            color: var(--muted);
+        }
+        .option input[type="radio"]:checked + label {
+            background: rgba(126,184,164,0.15);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+        .option label:hover { border-color: rgba(126,184,164,0.4); color: var(--text); }
+
+        .submit-btn {
+            width: 100%; padding: 16px;
+            background: var(--accent); color: #0c0f14;
+            border: none; border-radius: 12px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 15px; font-weight: 500;
+            cursor: pointer; margin-top: 32px;
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+        .submit-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(126,184,164,0.3); }
+
+        /* Results */
+        .results-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 40px 44px;
+            animation: fadeUp 0.5s cubic-bezier(0.16,1,0.3,1) both;
+        }
+        @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+
+        .results-title { font-family: 'Instrument Serif', serif; font-size: 1.6rem; margin-bottom: 24px; }
+        .result-row {
+            display: flex; align-items: center; justify-content: space-between;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 20px 24px;
+            margin-bottom: 16px;
+        }
+        .result-info .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 4px; }
+        .result-info .value { font-family: 'Instrument Serif', serif; font-size: 1.25rem; }
+        .score-badge {
+            font-size: 1.8rem; font-weight: 700;
+            font-family: 'Instrument Serif', serif;
+        }
+
+        .minimal { color: var(--low); }
+        .mild { color: #86efac; }
+        .moderate { color: var(--moderate); }
+        .severe { color: var(--high); }
+
+        .back-link {
+            display: inline-block; margin-top: 24px;
+            color: var(--muted); font-size: 13px; text-decoration: none;
+            transition: color 0.15s;
+        }
+        .back-link:hover { color: var(--accent); }
+
+        .nav { display: flex; gap: 12px; margin-bottom: 32px; }
+        .nav a {
+            font-size: 13px; color: var(--muted); text-decoration: none;
+            padding: 6px 14px; border: 1px solid var(--border); border-radius: 8px;
+            transition: all 0.15s;
+        }
+        .nav a:hover, .nav a.active { color: var(--accent); border-color: var(--accent); }
+
+        .disclaimer { margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--border); font-size: 11.5px; color: var(--muted); line-height: 1.7; text-align: center; }
+    </style>
+</head>
+<body>
+
+<div class="bg-orb bg-orb-1"></div>
+<div class="bg-orb bg-orb-2"></div>
+
+<div class="container">
+
+    {% if phq_result %}
+    <!-- RESULTS VIEW -->
+    <div class="results-card">
+        <div class="eyebrow"><div class="dot"></div><span class="eyebrow-text">Assessment Complete</span></div>
+        <h1 class="results-title">Your <em>Results</em></h1>
+
+        <div class="result-row">
+            <div class="result-info">
+                <div class="label">PHQ-9 · Depression Screen</div>
+                <div class="value
+                    {% if 'Minimal' in phq_result %}minimal
+                    {% elif 'Mild' in phq_result %}mild
+                    {% elif 'Moderate' in phq_result %}moderate
+                    {% else %}severe{% endif %}">
+                    {{ phq_result }}
+                </div>
+            </div>
+            <div class="score-badge
+                {% if 'Minimal' in phq_result %}minimal
+                {% elif 'Mild' in phq_result %}mild
+                {% elif 'Moderate' in phq_result %}moderate
+                {% else %}severe{% endif %}">
+                {{ phq_score }}<span style="font-size:1rem;opacity:0.5">/27</span>
+            </div>
+        </div>
+
+        <div class="result-row">
+            <div class="result-info">
+                <div class="label">GAD-7 · Anxiety Screen</div>
+                <div class="value
+                    {% if 'Minimal' in gad_result %}minimal
+                    {% elif 'Mild' in gad_result %}mild
+                    {% elif 'Moderate' in gad_result %}moderate
+                    {% else %}severe{% endif %}">
+                    {{ gad_result }}
+                </div>
+            </div>
+            <div class="score-badge
+                {% if 'Minimal' in gad_result %}minimal
+                {% elif 'Mild' in gad_result %}mild
+                {% elif 'Moderate' in gad_result %}moderate
+                {% else %}severe{% endif %}">
+                {{ gad_score }}<span style="font-size:1rem;opacity:0.5">/21</span>
+            </div>
+        </div>
+
+        <a href="/questionnaire" class="back-link">← Take the questionnaire again</a>
+        <a href="/" class="back-link" style="margin-left:20px">← Text Analysis</a>
+
+        <p class="disclaimer">This screening tool is not a clinical diagnosis. Please consult a mental health professional for proper evaluation.</p>
+    </div>
+
+    {% else %}
+    <!-- FORM VIEW -->
+    <div class="card">
+        <div class="nav">
+            <a href="/">Text Analysis</a>
+            <a href="/questionnaire" class="active">Questionnaire</a>
+        </div>
+
+        <div class="eyebrow"><div class="dot"></div><span class="eyebrow-text">Module 4 · Clinical Screening</span></div>
+        <h1>PHQ-9 & GAD-7<br><em>Questionnaire</em></h1>
+        <p class="subtitle">Answer honestly based on how you've been feeling over the <strong>last 2 weeks</strong>. All responses are private.</p>
+
+        <form method="POST">
+
+            <!-- PHQ-9 -->
+            <div class="section-title">PHQ-9 — Depression Scale</div>
+            <p class="section-desc">How often have you been bothered by the following?</p>
+
+            {% set phq_questions = [
+                "Little interest or pleasure in doing things",
+                "Feeling down, depressed, or hopeless",
+                "Trouble falling or staying asleep, or sleeping too much",
+                "Feeling tired or having little energy",
+                "Poor appetite or overeating",
+                "Feeling bad about yourself — or that you are a failure",
+                "Trouble concentrating on things, such as reading or watching TV",
+                "Moving or speaking so slowly that other people could have noticed (or being fidgety/restless)",
+                "Thoughts that you would be better off dead, or of hurting yourself"
+            ] %}
+
+            {% for i in range(9) %}
+            <div class="question-block">
+                <div class="question-text">{{ i+1 }}. {{ phq_questions[i] }}</div>
+                <div class="options">
+                    {% for val, label in [(0,"Not at all"), (1,"Several days"), (2,"More than half the days"), (3,"Nearly every day")] %}
+                    <div class="option">
+                        <input type="radio" name="phq_{{ i+1 }}" id="phq{{ i+1 }}_{{ val }}" value="{{ val }}" required>
+                        <label for="phq{{ i+1 }}_{{ val }}">{{ label }}</label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+
+            <!-- GAD-7 -->
+            <div class="section-title">GAD-7 — Anxiety Scale</div>
+            <p class="section-desc">Over the last 2 weeks, how often have you been bothered by the following?</p>
+
+            {% set gad_questions = [
+                "Feeling nervous, anxious, or on edge",
+                "Not being able to stop or control worrying",
+                "Worrying too much about different things",
+                "Trouble relaxing",
+                "Being so restless that it is hard to sit still",
+                "Becoming easily annoyed or irritable",
+                "Feeling afraid, as if something awful might happen"
+            ] %}
+
+            {% for i in range(7) %}
+            <div class="question-block">
+                <div class="question-text">{{ i+1 }}. {{ gad_questions[i] }}</div>
+                <div class="options">
+                    {% for val, label in [(0,"Not at all"), (1,"Several days"), (2,"More than half the days"), (3,"Nearly every day")] %}
+                    <div class="option">
+                        <input type="radio" name="gad_{{ i+1 }}" id="gad{{ i+1 }}_{{ val }}" value="{{ val }}" required>
+                        <label for="gad{{ i+1 }}_{{ val }}">{{ label }}</label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+
+            <button type="submit" class="submit-btn">Calculate My Score</button>
+        </form>
+
+        <p class="disclaimer">This tool is for educational purposes only and is not a substitute for professional mental health advice.</p>
+    </div>
+    {% endif %}
+
+</div>
+</body>
+</html>
