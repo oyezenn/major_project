@@ -1,18 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mental Health Detector</title>
-    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap"
+        rel="stylesheet">
     <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
         :root {
             --bg: #0c0f14;
             --surface: #13171f;
             --surface2: #1a1f2a;
-            --border: rgba(255,255,255,0.07);
+            --border: rgba(255, 255, 255, 0.07);
             --accent: #7eb8a4;
             --accent2: #a78bfa;
             --text: #e8e6e1;
@@ -42,13 +51,42 @@
             pointer-events: none;
             animation: drift 12s ease-in-out infinite alternate;
         }
-        .bg-orb-1 { width: 500px; height: 500px; background: #7eb8a4; top: -100px; left: -100px; animation-delay: 0s; }
-        .bg-orb-2 { width: 400px; height: 400px; background: #a78bfa; bottom: -80px; right: -80px; animation-delay: -5s; }
-        .bg-orb-3 { width: 300px; height: 300px; background: #60a5fa; top: 40%; left: 60%; animation-delay: -3s; }
+
+        .bg-orb-1 {
+            width: 500px;
+            height: 500px;
+            background: #7eb8a4;
+            top: -100px;
+            left: -100px;
+            animation-delay: 0s;
+        }
+
+        .bg-orb-2 {
+            width: 400px;
+            height: 400px;
+            background: #a78bfa;
+            bottom: -80px;
+            right: -80px;
+            animation-delay: -5s;
+        }
+
+        .bg-orb-3 {
+            width: 300px;
+            height: 300px;
+            background: #60a5fa;
+            top: 40%;
+            left: 60%;
+            animation-delay: -3s;
+        }
 
         @keyframes drift {
-            from { transform: translate(0, 0) scale(1); }
-            to { transform: translate(30px, 20px) scale(1.05); }
+            from {
+                transform: translate(0, 0) scale(1);
+            }
+
+            to {
+                transform: translate(30px, 20px) scale(1.05);
+            }
         }
 
         /* Noise texture overlay */
@@ -72,8 +110,15 @@
         }
 
         @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(28px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(28px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .card {
@@ -82,7 +127,7 @@
             border-radius: 24px;
             padding: 48px 44px;
             backdrop-filter: blur(20px);
-            box-shadow: 0 32px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.03) inset;
+            box-shadow: 0 32px 80px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.03) inset;
         }
 
         .eyebrow {
@@ -93,15 +138,25 @@
         }
 
         .dot {
-            width: 6px; height: 6px;
+            width: 6px;
+            height: 6px;
             border-radius: 50%;
             background: var(--accent);
             animation: pulse 2s ease-in-out infinite;
         }
 
         @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.5; transform: scale(0.8); }
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.5;
+                transform: scale(0.8);
+            }
         }
 
         .eyebrow-text {
@@ -156,7 +211,9 @@
             min-height: 110px;
         }
 
-        textarea::placeholder { color: var(--muted); }
+        textarea::placeholder {
+            color: var(--muted);
+        }
 
         textarea:focus {
             border-color: rgba(126, 184, 164, 0.4);
@@ -193,7 +250,7 @@
             content: '';
             position: absolute;
             inset: 0;
-            background: linear-gradient(180deg, rgba(255,255,255,0.12) 0%, transparent 100%);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, transparent 100%);
             pointer-events: none;
         }
 
@@ -203,7 +260,9 @@
             background: #8fc9b5;
         }
 
-        button[type="submit"]:active { transform: translateY(0); }
+        button[type="submit"]:active {
+            transform: translateY(0);
+        }
 
         /* Result card */
         .result-section {
@@ -222,9 +281,12 @@
         }
 
         .result-icon {
-            width: 38px; height: 38px;
+            width: 38px;
+            height: 38px;
             border-radius: 10px;
-            display: flex; align-items: center; justify-content: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-size: 18px;
             flex-shrink: 0;
         }
@@ -245,12 +307,29 @@
         }
 
         /* risk colours */
-        .risk-low .result-icon { background: rgba(110, 231, 183, 0.12); }
-        .risk-low .result-value { color: var(--low); }
-        .risk-moderate .result-icon { background: rgba(251, 191, 36, 0.12); }
-        .risk-moderate .result-value { color: var(--moderate); }
-        .risk-high .result-icon { background: rgba(248, 113, 113, 0.12); }
-        .risk-high .result-value { color: var(--high); }
+        .risk-low .result-icon {
+            background: rgba(110, 231, 183, 0.12);
+        }
+
+        .risk-low .result-value {
+            color: var(--low);
+        }
+
+        .risk-moderate .result-icon {
+            background: rgba(251, 191, 36, 0.12);
+        }
+
+        .risk-moderate .result-value {
+            color: var(--moderate);
+        }
+
+        .risk-high .result-icon {
+            background: rgba(248, 113, 113, 0.12);
+        }
+
+        .risk-high .result-value {
+            color: var(--high);
+        }
 
         .disclaimer {
             margin-top: 28px;
@@ -263,95 +342,114 @@
         }
 
         /* Loading state */
-        .btn-loading { pointer-events: none; opacity: 0.7; }
+        .btn-loading {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
         .spinner {
             display: inline-block;
-            width: 14px; height: 14px;
-            border: 2px solid rgba(0,0,0,0.3);
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(0, 0, 0, 0.3);
             border-top-color: #0c0f14;
             border-radius: 50%;
             animation: spin 0.6s linear infinite;
             vertical-align: middle;
             margin-right: 8px;
         }
-        @keyframes spin { to { transform: rotate(360deg); } }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
     </style>
 </head>
+
 <body>
 
-<div class="bg-orb bg-orb-1"></div>
-<div class="bg-orb bg-orb-2"></div>
-<div class="bg-orb bg-orb-3"></div>
+    <div class="bg-orb bg-orb-1"></div>
+    <div class="bg-orb bg-orb-2"></div>
+    <div class="bg-orb bg-orb-3"></div>
 
-<div class="container">
-    <div style="display:flex;gap:12px;margin-bottom:24px;position:relative;z-index:1;">
-        <a href="/" style="font-size:13px;color:#7eb8a4;text-decoration:none;padding:6px 14px;border:1px solid #7eb8a4;border-radius:8px;">Text Analysis</a>
-        <a href="/questionnaire" style="font-size:13px;color:#6b7280;text-decoration:none;padding:6px 14px;border:1px solid rgba(255,255,255,0.07);border-radius:8px;">Questionnaire</a>
-        <a href="/audio" style="font-size:13px;color:#6b7280;text-decoration:none;padding:6px 14px;border:1px solid rgba(255,255,255,0.07);border-radius:8px;">Audio Analysis</a>
-    </div>
-    <div class="card">
-
-        <div class="eyebrow">
-            <div class="dot"></div>
-            <span class="eyebrow-text">AI-Powered Analysis</span>
+    <div class="container">
+        <div style="display:flex;gap:12px;margin-bottom:24px;position:relative;z-index:1;">
+            <a href="/"
+                style="font-size:13px;color:#7eb8a4;text-decoration:none;padding:6px 14px;border:1px solid #7eb8a4;border-radius:8px;">Text
+                Analysis</a>
+            <a href="/questionnaire"
+                style="font-size:13px;color:#6b7280;text-decoration:none;padding:6px 14px;border:1px solid rgba(255,255,255,0.07);border-radius:8px;">Questionnaire</a>
+            <a href="/audio"
+                style="font-size:13px;color:#6b7280;text-decoration:none;padding:6px 14px;border:1px solid rgba(255,255,255,0.07);border-radius:8px;">Audio
+                Analysis</a>
         </div>
+        <div class="card">
 
-        <h1>Mental Health<br><em>Risk Detector</em></h1>
-        <p class="subtitle">Share what's on your mind. Our model will assess emotional risk signals in your text.</p>
-
-        <form method="POST" id="analysisForm">
-            <div class="input-wrap">
-                <textarea
-                    name="text"
-                    id="textInput"
-                    placeholder="Type your thoughts here…"
-                    required
-                    maxlength="500"
-                ></textarea>
-                <span class="char-count" id="charCount">0 / 500</span>
+            <div class="eyebrow">
+                <div class="dot"></div>
+                <span class="eyebrow-text">AI-Powered Analysis</span>
             </div>
-            <button type="submit" id="submitBtn">Analyze Text</button>
-        </form>
 
-        <!-- Result injected by Flask: replace the block below -->
-        {% if result %}
-        <div class="result-section">
-            <div class="result-card {% if 'High' in result %}risk-high{% elif 'Moderate' in result %}risk-moderate{% else %}risk-low{% endif %}">
-                <div class="result-icon">
-                    {% if 'High' in result %}⚠️{% elif 'Moderate' in result %}🔶{% else %}✅{% endif %}
+            <h1>Mental Health<br><em>Risk Detector</em></h1>
+            <p class="subtitle">Share what's on your mind. Our model will assess emotional risk signals in your text.
+            </p>
+
+            <form method="POST" id="analysisForm">
+                <div class="input-wrap">
+                    <textarea name="text" id="textInput" placeholder="Type your thoughts here…" required
+                        maxlength="500"></textarea>
+                    <span class="char-count" id="charCount">0 / 500</span>
                 </div>
-                <div>
-                    <div class="result-label">Assessment Result</div>
-                    <div class="result-value">{{ result }}</div>
+                <button type="submit" id="submitBtn">Analyze Text</button>
+            </form>
+
+            <!-- Result injected by Flask: replace the block below -->
+            {% if error %}
+            <div
+                style="margin-top:20px;padding:16px;border-radius:12px;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);color:#f87171;font-size:13px;text-align:center;">
+                {{ error }}
+            </div>
+            {% endif %}
+            <div class="result-section">
+                <div
+                    class="result-card {% if 'High' in result %}risk-high{% elif 'Moderate' in result %}risk-moderate{% else %}risk-low{% endif %}">
+                    <div class="result-icon">
+                        {% if 'High' in result %}⚠️{% elif 'Moderate' in result %}🔶{% else %}✅{% endif %}
+                    </div>
+                    <div>
+                        <div class="result-label">Assessment Result</div>
+                        <div class="result-value">{{ result }}</div>
+                    </div>
                 </div>
             </div>
+            {% endif %}
+
+            <p class="disclaimer">
+                This tool is for educational purposes only and is not a substitute<br>
+                for professional mental health advice or diagnosis.
+            </p>
+
         </div>
-        {% endif %}
-
-        <p class="disclaimer">
-            This tool is for educational purposes only and is not a substitute<br>
-            for professional mental health advice or diagnosis.
-        </p>
-
     </div>
-</div>
 
-<script>
-    const textarea = document.getElementById('textInput');
-    const charCount = document.getElementById('charCount');
-    const form = document.getElementById('analysisForm');
-    const btn = document.getElementById('submitBtn');
+    <script>
+        const textarea = document.getElementById('textInput');
+        const charCount = document.getElementById('charCount');
+        const form = document.getElementById('analysisForm');
+        const btn = document.getElementById('submitBtn');
 
-    textarea.addEventListener('input', () => {
-        const len = textarea.value.length;
-        charCount.textContent = `${len} / 500`;
-    });
+        textarea.addEventListener('input', () => {
+            const len = textarea.value.length;
+            charCount.textContent = `${len} / 500`;
+        });
 
-    form.addEventListener('submit', () => {
-        btn.classList.add('btn-loading');
-        btn.innerHTML = '<span class="spinner"></span>Analyzing…';
-    });
-</script>
+        form.addEventListener('submit', () => {
+            btn.classList.add('btn-loading');
+            btn.innerHTML = '<span class="spinner"></span>Analyzing…';
+        });
+    </script>
 
 </body>
+
 </html>
