@@ -411,6 +411,8 @@
                 {{ error }}
             </div>
             {% endif %}
+
+            {% if result %}
             <div class="result-section">
                 <div
                     class="result-card {% if 'High' in result %}risk-high{% elif 'Moderate' in result %}risk-moderate{% else %}risk-low{% endif %}">
